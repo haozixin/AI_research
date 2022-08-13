@@ -4,11 +4,11 @@
 
 **Semester:** Semester 2, 2022
 
-**Student:**
+**Student:** ZIXIN HAO
 
 
 
-> Replace the lines above with your correct details. Your student number should only be the **numbers**.
+> 1309180
 
 
 Use the heading below in case you want to add comments about your solution.

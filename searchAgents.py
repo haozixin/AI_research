@@ -879,3 +879,4 @@ def bidirectionalFoodProblemHeuristic(state, problem):
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
     return 0
+
