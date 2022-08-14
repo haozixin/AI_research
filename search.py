@@ -16,7 +16,7 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
-
+import queue
 from cmath import inf
 from itertools import accumulate
 from queue import PriorityQueue
@@ -124,7 +124,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     best_g = dict()
     while not myPQ.isEmpty():
         node = myPQ.pop()
+
         state, action, cost, path = node
+
         if (not state in visited) or cost < best_g.get(state):
             visited.add(state)
             best_g[state]=cost
@@ -148,10 +150,53 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     It will be pass to this function as second argument (heuristic).
     """
     "*** YOUR CODE HERE FOR TASK 1 ***"
-    
+
+    # get start state
+    startState = problem.getStartState()
+    startNode = (startState, '', 0, [])
+
+    # the parameter of startState is temporary, it will be changed in the loop
+    while not problem.isGoalState(startState):
+        # queue for all successors of the state
+        myPQ = queue.Queue()
+        # push the start node to the queue
+        myPQ.put(startNode)
+        # build the closed set
+        visited = set()
+
+        while not myPQ.empty():
+            # get the node with the lowest cost (since it's a priority queue,
+            # the node with the lowest cost is the first one in the queue)
+            node = myPQ.get()
+            # get the properties of the node
+            state, action, cost, path = node
+            # if the state is not in the closed set, add it to the closed set
+            if not state in visited:
+                visited.add(state)
+
+                if heuristic(state, problem) < heuristic(startState, problem):
+                    startState = state
+                    startNode = (state, action, cost, path)
+                    break
+
+                for succ in problem.getSuccessors(state):
+                    succState, succAction, succCost = succ
+                    newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                    # we only care about the heuristic value of the successor as the priority value
+                    myPQ.put(newNode)
+
+    state, action, cost, path = startNode
+    # if we find the goal state, return the path
+    # get the actions from the path
+    path = startNode[3]+[(state, action)]
+    actions = [action[1] for action in path]
+    # delete the first action, which is 'Stop'
+    del actions[0]
+    return actions
+
     
     # put the below line at the end of your code or remove it
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
 
 
 from math import inf as INF   
