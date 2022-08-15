@@ -212,11 +212,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
 
-
-
-
-
-
     # use directory to store Open_b (as an auxiliary data structure)
     directory_f = dict()
     directory_b = dict()

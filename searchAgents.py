@@ -780,7 +780,7 @@ class BidirectionalFoodSearchAgent(BidirectionalSearchAgent):
 
 class BidirectionalFoodSearchProblem:
     """
-    A search problem associated with finding the a path that collects all of the
+    A search problem associated with finding the path that collects all of the
     food (dots) in a Pacman game.
 
     startingGameState contains:
@@ -799,7 +799,7 @@ class BidirectionalFoodSearchProblem:
 
         """YOUR CODE HERE FOR TASK 3:"""
         # Define your initial state
-        self.start = ()
+        self.start = self.init_pos
         # And if you have anything else want to initialize:
         
         
@@ -810,33 +810,46 @@ class BidirectionalFoodSearchProblem:
     
     def getGoalStates(self):
         goal_states = []
+        temp = []
         """YOUR CODE HERE FOR TASK 3:"""
         # You must generate all goal states
-        
+        for x in range(self.foodGrid.width):
+            for y in range(self.foodGrid.height):
+                if self.foodGrid[x][y]:
+                    distance = util.manhattanDistance((x, y), self.getStartState())
+                    temp.append((x, y, distance))
+
+        temp.sort(key=lambda x: x[2])
+        for i in range(len(temp)):
+            goal_states.append(temp[i][:2])
+
         return goal_states
 
     def isGoalState(self, state):
         goal_achieved = False
         """YOUR CODE HERE FOR TASK 3:"""
         # You MUST implement this function to return True or False
-        # to indicate whether the give state is one of the goal state or not        
-        
+        # to indicate whether the give state is one of the goal state or not
+        if state in self.getGoalStates():
+            goal_achieved = True
+
         return goal_achieved
 
     def getSuccessors(self, state):
         # You MUST implement this function to return a list of successors
         # A successor is in the format of (next_state, action, cost)
         successors = []
-        self._expanded += 1 # DO NOT CHANGE
-        
+        self._expanded += 1  # DO NOT CHANGE
         """YOUR CODE HERE FOR TASK 3:"""
 
         # There are four actions might be available:
-        # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-        #     dx, dy = Actions.directionToVector(direction)
-            
-            
-            
+        for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            dx, dy = Actions.directionToVector(direction)
+            next_x, next_y = int(state[0] + dx), int(state[1] + dy)
+            if not self.walls[next_x][next_y]:
+                next_state = (next_x, next_y)
+                cost = 1
+                successors.append((next_state, direction, cost))  # succState, succAction, succCost
         return successors
 
     def getBackwardsSuccessors(self, state):
@@ -844,16 +857,20 @@ class BidirectionalFoodSearchProblem:
         # A successor is in the format of (next_state, action, cost)
         # DO reverse your action before you return it
         successors = []
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         
         """YOUR CODE HERE FOR TASK 3:"""
 
+        x, y = state
         # There are four actions might be available:
-        # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-        #     dx, dy = Actions.directionToVector(direction)
-            
-            
-            
+        for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            dx, dy = Actions.directionToVector(direction)
+            next_x, next_y = int(x + dx), int(y + dy)
+            if not self.walls[next_x][next_y]:
+                next_state = (next_x, next_y)
+                cost = 1  # ?
+                rev_action = Actions.reverseDirection(direction)
+                successors.append((next_state, rev_action, cost))
         return successors
 
 
@@ -864,19 +881,31 @@ class BidirectionalFoodSearchProblem:
 
         # this function will return the cost only for display purpose when you run your own test.
         "*** YOUR CODE HERE FOR TASK 3 (optional) ***"
+        if actions == None: return 999999
+        x,y= self.getStartState()
         cost = 0
+        for action in actions:
+            # Check figure out the next state and see whether its' legal
+            dx, dy = Actions.directionToVector(action)
+            x, y = int(x + dx), int(y + dy)
+            if self.walls[x][y]:
+                return 999999
+            cost += 1
+        return cost
 
         # for action in actions:
         #     dx, dy = Actions.directionToVector(action)
-        
-        return cost
+
 
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
     return 0
 
+
+
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
+
     return 0
 
