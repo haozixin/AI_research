@@ -801,8 +801,13 @@ class BidirectionalFoodSearchProblem:
         # Define your initial state
         self.start = self.init_pos
         # And if you have anything else want to initialize:
-        
-        
+        self.goals = self.getGoalStates()
+        self.current_goal = self.goals[0]
+        self.current_start = self.start
+        self.heuristicInfo = {}
+
+
+
     def getStartState(self):
         """YOUR CODE HERE FOR TASK 3:"""
         # You MUST implement this function to return the initial state
@@ -816,12 +821,47 @@ class BidirectionalFoodSearchProblem:
         for x in range(self.foodGrid.width):
             for y in range(self.foodGrid.height):
                 if self.foodGrid[x][y]:
-                    distance = util.manhattanDistance((x, y), self.getStartState())
-                    temp.append((x, y, distance))
+                    # distance = util.manhattanDistance((x, y), self.getStartState())
+                    temp.append((x, y))
 
-        temp.sort(key=lambda x: x[2])
-        for i in range(len(temp)):
-            goal_states.append(temp[i][:2])
+        point1 = self.init_pos
+        for goal in range(len(temp)):
+            minimum = 999999
+            min_goal = (1,1)
+            for point2 in temp:
+                x1, y1 = point1
+                x2, y2 = point2
+                assert not self.walls[x1][y1], 'point1 is a wall: ' + str(point1)
+                assert not self.walls[x2][y2], 'point2 is a wall: ' + str(point2)
+                prob = PositionSearchProblem(self.startingGameState, start=point1, goal=point2, warn=False, visualize=False)
+                path_length = len(search.astar(prob, manhattanHeuristic))
+                if path_length < minimum:
+                    minimum = path_length
+                    min_goal = point2
+            goal_states.append(min_goal)
+            temp.remove(min_goal)
+            point1 = goal_states[-1]
+
+
+            # temp = {}
+        # """YOUR CODE HERE FOR TASK 3:"""
+        # # You must generate all goal states
+        # for x in range(self.foodGrid.width):
+        #     for y in range(self.foodGrid.height):
+        #         if self.foodGrid[x][y]:
+        #             distance = util.manhattanDistance((x, y), self.getStartState())
+        #             temp[(x, y)] = distance
+        # # keep loop until temp is empty
+        # while temp:
+        #     # find the distance of the closest food to the start state (two adjacent item in the list is the closest)
+        #     # After pacman has eaten the closest food, the start state will be the goal state that pacman is at
+        #     closest = min(temp, key=temp.get)  # (a, b)
+        #     goal_states.append(closest)
+        #     temp.pop(closest)
+        #     for key in temp:
+        #         if key != closest:
+        #             distance = util.manhattanDistance(key, closest)
+        #             temp[key] = distance
 
         return goal_states
 
@@ -900,12 +940,74 @@ class BidirectionalFoodSearchProblem:
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
-    return 0
+    # calculate the heuristic value for the given state(from the start state to current goal)
+    position = state
+    goal_states = problem.goals
+
+    """
+    Based on the code from bidirectionalAStarEnhanced in search.py and the logic of the bidirectional A star algorithm,
+    we can find the current goal state and the start state.
+    """
+    # if the state is one of the goal state
+    if state in goal_states:
+        # if the goal state is first time visited, give it 0
+        if not state in problem.heuristicInfo:
+            # Initially, the count number of the goals passed into the heuristic function is 0
+            problem.heuristicInfo[state] = 0
+
+        else:
+            # when the goal state is visited again, the count number of the goals passed into the heuristic function is increased by 1
+            problem.heuristicInfo[state] += 1
+
+        # if the goal state value is 0, it means the goal state is doing heuristic calculation in the backward direction
+        # So, it must be the first goal state to be visited
+        # Because, until next goal state is passed in, the bidirectional A star algorithm will not change the goal state
+        if problem.heuristicInfo[state] == 0:
+            problem.current_goal = state
+
+        # if the goal state value is 1, it means the state passed in is the second time visited(as start state)
+        # So, current_goal_state is the second goal state to be visited
+        if problem.heuristicInfo[state] == 1:
+            if goal_states.index(state)+1 < len(goal_states):
+                problem.current_goal = goal_states[goal_states.index(state)+1]
+
+    # Euclidean distance between the current state and the goal state
+    distance = pow((position[0] - problem.current_goal[0])**2 + (position[1] - problem.current_goal[1])**2, 0.5)
+
+    return distance
 
 
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
 
-    return 0
+    position = state
+    goal_states = problem.goals
+    # if the state is one of the goal state
+    if state in goal_states:
+        # if the goal state is first time visited, give it 0
+        if not state in problem.heuristicInfo:
+            # Initially, the count number of the goals passed into the heuristic function is 0
+            problem.heuristicInfo[state] = 0
+
+        else:
+            # when the goal state is visited again, the count number of the goals passed into the heuristic function is increased by 1
+            problem.heuristicInfo[state] += 1
+
+        # if the goal state value is 0, it means the goal state is doing heuristic calculation in the backward direction
+        # So, it must be the first goal state to be visited
+        # Because, until next goal state is passed in, the bidirectional A star algorithm will not change the goal state
+        if problem.heuristicInfo[state] == 0:
+            problem.current_goal = state
+
+        # if the goal state value is 1, it means the state passed in is the second time visited(as start state)
+        # So, the original goal state becomes the start state
+        if problem.heuristicInfo[state] == 1:
+            problem.current_start = state
+
+
+    # Euclidean distance between the current state and the current start state
+    distance = pow((position[0] - problem.current_start[0]) ** 2 + (position[1] - problem.current_start[1]) ** 2, 0.5)
+
+    return distance
 
