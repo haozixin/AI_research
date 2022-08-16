@@ -842,27 +842,6 @@ class BidirectionalFoodSearchProblem:
             temp.remove(min_goal)
             point1 = goal_states[-1]
 
-
-            # temp = {}
-        # """YOUR CODE HERE FOR TASK 3:"""
-        # # You must generate all goal states
-        # for x in range(self.foodGrid.width):
-        #     for y in range(self.foodGrid.height):
-        #         if self.foodGrid[x][y]:
-        #             distance = util.manhattanDistance((x, y), self.getStartState())
-        #             temp[(x, y)] = distance
-        # # keep loop until temp is empty
-        # while temp:
-        #     # find the distance of the closest food to the start state (two adjacent item in the list is the closest)
-        #     # After pacman has eaten the closest food, the start state will be the goal state that pacman is at
-        #     closest = min(temp, key=temp.get)  # (a, b)
-        #     goal_states.append(closest)
-        #     temp.pop(closest)
-        #     for key in temp:
-        #         if key != closest:
-        #             distance = util.manhattanDistance(key, closest)
-        #             temp[key] = distance
-
         return goal_states
 
     def isGoalState(self, state):
