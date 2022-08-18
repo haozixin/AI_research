@@ -799,11 +799,11 @@ class BidirectionalFoodSearchProblem:
 
         """YOUR CODE HERE FOR TASK 3:"""
         # Define your initial state
-        self.start = self.init_pos
+        self.start = (startingGameState.getPacmanPosition(), startingGameState.getFood())
         # And if you have anything else want to initialize:
         self.goals = self.getGoalStates()
-        self.current_goal = self.goals[0]
-        self.current_start = self.start
+        # self.current_goal = self.goals[0]
+        # self.current_start = self.start
         self.heuristicInfo = {}
 
 
@@ -815,33 +815,14 @@ class BidirectionalFoodSearchProblem:
     
     def getGoalStates(self):
         goal_states = []
-        temp = []
+        # temp = []
         """YOUR CODE HERE FOR TASK 3:"""
         # You must generate all goal states
         for x in range(self.foodGrid.width):
             for y in range(self.foodGrid.height):
                 if self.foodGrid[x][y]:
                     # distance = util.manhattanDistance((x, y), self.getStartState())
-                    temp.append((x, y))
-
-        point1 = self.init_pos
-        for goal in range(len(temp)):
-            minimum = 999999
-            min_goal = (1,1)
-            for point2 in temp:
-                x1, y1 = point1
-                x2, y2 = point2
-                assert not self.walls[x1][y1], 'point1 is a wall: ' + str(point1)
-                assert not self.walls[x2][y2], 'point2 is a wall: ' + str(point2)
-                prob = PositionSearchProblem(self.startingGameState, start=point1, goal=point2, warn=False, visualize=False)
-                path_length = len(search.astar(prob, manhattanHeuristic))
-                if path_length < minimum:
-                    minimum = path_length
-                    min_goal = point2
-            goal_states.append(min_goal)
-            temp.remove(min_goal)
-            point1 = goal_states[-1]
-
+                    goal_states.append(((x, y), self.foodGrid))
         return goal_states
 
     def isGoalState(self, state):
@@ -849,10 +830,7 @@ class BidirectionalFoodSearchProblem:
         """YOUR CODE HERE FOR TASK 3:"""
         # You MUST implement this function to return True or False
         # to indicate whether the give state is one of the goal state or not
-        if state in self.getGoalStates():
-            goal_achieved = True
-
-        return goal_achieved
+        return state[1].count() == 0
 
     def getSuccessors(self, state):
         # You MUST implement this function to return a list of successors
@@ -863,12 +841,13 @@ class BidirectionalFoodSearchProblem:
 
         # There are four actions might be available:
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state[0]
             dx, dy = Actions.directionToVector(direction)
-            next_x, next_y = int(state[0] + dx), int(state[1] + dy)
+            next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
-                next_state = (next_x, next_y)
-                cost = 1
-                successors.append((next_state, direction, cost))  # succState, succAction, succCost
+                nextFood = state[1].copy()
+                nextFood[next_x][next_y] = False
+                successors.append((((next_x, next_y), nextFood), direction, 1))  # (succState, nextFood), succAction, succCost
         return successors
 
     def getBackwardsSuccessors(self, state):
@@ -880,16 +859,18 @@ class BidirectionalFoodSearchProblem:
         
         """YOUR CODE HERE FOR TASK 3:"""
 
-        x, y = state
         # There are four actions might be available:
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state[0]
             dx, dy = Actions.directionToVector(direction)
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
                 next_state = (next_x, next_y)
                 cost = 1  # ?
+                nextFood = state[1].copy()
+                nextFood[next_x][next_y] = False
                 rev_action = Actions.reverseDirection(direction)
-                successors.append((next_state, rev_action, cost))
+                successors.append(((next_state, nextFood), rev_action, cost))
         return successors
 
 
@@ -901,7 +882,7 @@ class BidirectionalFoodSearchProblem:
         # this function will return the cost only for display purpose when you run your own test.
         "*** YOUR CODE HERE FOR TASK 3 (optional) ***"
         if actions == None: return 999999
-        x,y= self.getStartState()
+        x,y= self.getStartState()[0]
         cost = 0
         for action in actions:
             # Check figure out the next state and see whether its' legal
@@ -919,74 +900,13 @@ class BidirectionalFoodSearchProblem:
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
-    # calculate the heuristic value for the given state(from the start state to current goal)
-    position = state
-    goal_states = problem.goals
 
-    """
-    Based on the code from bidirectionalAStarEnhanced in search.py and the logic of the bidirectional A star algorithm,
-    we can find the current goal state and the start state.
-    """
-    # if the state is one of the goal state
-    if state in goal_states:
-        # if the goal state is first time visited, give it 0
-        if not state in problem.heuristicInfo:
-            # Initially, the count number of the goals passed into the heuristic function is 0
-            problem.heuristicInfo[state] = 0
-
-        else:
-            # when the goal state is visited again, the count number of the goals passed into the heuristic function is increased by 1
-            problem.heuristicInfo[state] += 1
-
-        # if the goal state value is 0, it means the goal state is doing heuristic calculation in the backward direction
-        # So, it must be the first goal state to be visited
-        # Because, until next goal state is passed in, the bidirectional A star algorithm will not change the goal state
-        if problem.heuristicInfo[state] == 0:
-            problem.current_goal = state
-
-        # if the goal state value is 1, it means the state passed in is the second time visited(as start state)
-        # So, current_goal_state is the second goal state to be visited
-        if problem.heuristicInfo[state] == 1:
-            if goal_states.index(state)+1 < len(goal_states):
-                problem.current_goal = goal_states[goal_states.index(state)+1]
-
-    # Euclidean distance between the current state and the goal state
-    distance = pow((position[0] - problem.current_goal[0])**2 + (position[1] - problem.current_goal[1])**2, 0.5)
-
-    return distance
+    return 0
 
 
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
 
-    position = state
-    goal_states = problem.goals
-    # if the state is one of the goal state
-    if state in goal_states:
-        # if the goal state is first time visited, give it 0
-        if not state in problem.heuristicInfo:
-            # Initially, the count number of the goals passed into the heuristic function is 0
-            problem.heuristicInfo[state] = 0
-
-        else:
-            # when the goal state is visited again, the count number of the goals passed into the heuristic function is increased by 1
-            problem.heuristicInfo[state] += 1
-
-        # if the goal state value is 0, it means the goal state is doing heuristic calculation in the backward direction
-        # So, it must be the first goal state to be visited
-        # Because, until next goal state is passed in, the bidirectional A star algorithm will not change the goal state
-        if problem.heuristicInfo[state] == 0:
-            problem.current_goal = state
-
-        # if the goal state value is 1, it means the state passed in is the second time visited(as start state)
-        # So, the original goal state becomes the start state
-        if problem.heuristicInfo[state] == 1:
-            problem.current_start = state
-
-
-    # Euclidean distance between the current state and the current start state
-    distance = pow((position[0] - problem.current_start[0]) ** 2 + (position[1] - problem.current_start[1]) ** 2, 0.5)
-
-    return distance
+    return 0
 
