@@ -269,12 +269,11 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     if problem.isGoalState(state):
                         upper_bound = cost + directory_b[state][2]
                         plan = path
-                        print(plan)
+
 
 
             if lower_bound >= upper_bound:
                 plan = [action[1] for action in plan]
-                print(plan)
                 return plan
 
             successors = problem.getSuccessors(state)
@@ -302,11 +301,10 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     if problem.isGoalState(state):
                         upper_bound = directory_f[state][2] + cost
                         plan = directory_f[state][3]
-                        print(plan)
 
             if lower_bound >= upper_bound:
                 plan = [action[1] for action in plan]
-                print(plan)
+
                 return plan
 
             successors = problem.getBackwardsSuccessors(state)
