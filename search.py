@@ -75,7 +75,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -95,17 +96,19 @@ def depthFirstSearch(problem):
 
     util.raiseNotDefined()
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
 
-
     util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -114,14 +117,15 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 # Please DO NOT change the following code, we will use it later
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     myPQ = util.PriorityQueue()
     startState = problem.getStartState()
-    startNode = (startState, '',0, [])
-    myPQ.push(startNode,heuristic(startState,problem))
+    startNode = (startState, '', 0, [])
+    myPQ.push(startNode, heuristic(startState, problem))
     visited = set()
     best_g = dict()
     while not myPQ.isEmpty():
@@ -131,7 +135,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         if (not state in visited) or cost < best_g.get(state):
             visited.add(state)
-            best_g[state]=cost
+            best_g[state] = cost
             if problem.isGoalState(state):
                 path = path + [(state, action)]
                 actions = [action[1] for action in path]
@@ -140,7 +144,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             for succ in problem.getSuccessors(state):
                 succState, succAction, succCost = succ
                 newNode = (succState, succAction, cost + succCost, path + [(state, action)])
-                myPQ.push(newNode,heuristic(succState,problem)+cost+succCost)
+                myPQ.push(newNode, heuristic(succState, problem) + cost + succCost)
     util.raiseNotDefined()
 
 
@@ -190,20 +194,20 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     state, action, cost, path = startNode
     # if we find the goal state, return the path
     # get the actions from the path
-    path = startNode[3]+[(state, action)]
+    path = startNode[3] + [(state, action)]
     actions = [action[1] for action in path]
     # delete the first action, which is 'Stop'
     del actions[0]
     return actions
 
-    
     # put the below line at the end of your code or remove it
     # util.raiseNotDefined()
 
 
-from math import inf as INF   
+from math import inf as INF
+
+
 def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuristic=nullHeuristic):
-    
     """
     Bidirectional global search with heuristic function.
     You DO NOT need to implement any heuristic, but you DO have to call them.
@@ -213,110 +217,109 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
     # The problem passed in going to be BidirectionalPositionSearchProblem
-    # make initial node for each direction
-    start_state = problem.getStartState()
-    start_node = (start_state, '', 0, [])
 
     # use directory to store Open_b (as an auxiliary data structure)
     directory_f = dict()
     directory_b = dict()
 
-    Open_f = util.PriorityQueue()
-    Open_b = util.PriorityQueue()
-
     # forward direction
     # dn_f = cost - hx_inverse_direction(from the node to the actual initial state)
-    cost_f = start_node[2]
-    dn_f = cost_f - backwardsHeuristic(start_state, problem)  # for initial node: 0 - 0
-    Open_f.push(start_node, heuristic(start_state, problem) + cost_f + dn_f)
+    # make initial node for each direction
+    Open_f = util.PriorityQueue()
+    start_state = problem.getStartState()
+    start_node = (start_state, '', 0, [])
+    dn_f = start_node[2] - backwardsHeuristic(start_state, problem)  # for initial node: 0 - 0
+    Open_f.push(start_node, heuristic(start_state, problem) + start_node[2] + dn_f)
     directory_f[start_state] = start_node  # {state :(state, action, cost, path)...}
 
     # backward direction
     # Priority = h-value from node to initial state(consider it as goal state in opposite direction) +
     # cost(from node to actual goal state) + dn_b
+    Open_b = util.PriorityQueue()
     goals = problem.getGoalStates()
-
     for goal_state in goals:
         goal_node = (goal_state, '', 0, [])
         cost_b = goal_node[2]
         dn_b = cost_b - heuristic(goal_state, problem)  # opposite h-value is the h from node to the actual goal state
-        Open_b.push(goal_node, backwardsHeuristic(goal_state, problem)+cost_b+dn_b)
+        Open_b.push(goal_node, backwardsHeuristic(goal_state, problem) + cost_b + dn_b)
         directory_b[goal_state] = goal_node
 
-    closed_f = set()
-    closed_b = set()
+    closed_forward = set()
+    closed_backward = set()
 
     lower_bound = 0
     upper_bound = INF
     x = True  # x <- f, when x = true. x <- b, when x = false.
     plan = []
 
+    best_g = dict()
     while not Open_f.isEmpty() and not Open_b.isEmpty():
         b_Min_f = Open_f.getMinimumPriority()
         b_Min_b = Open_b.getMinimumPriority()
-        lower_bound = (b_Min_b+b_Min_f)/2
+        lower_bound = (b_Min_b + b_Min_f) / 2
 
         if x:
-            n = Open_f.pop()
-            state, action, cost, path = n
-            closed_f.add(state)
+            node = Open_f.pop()
+            state, action, cost, path = node
+            if not state in closed_forward or cost < best_g.get(state):
+                closed_forward.add(state)
 
-            if state in directory_b and cost + directory_b[state][2] < upper_bound:
-                if len(goals) == 1:
-                    upper_bound = cost + directory_b[state][2]
-                    plan = path + list(reversed(directory_b[state][3]))
-                else:
-                    if problem.isGoalState(state):
+                if state in directory_b and cost + directory_b[state][2] < upper_bound:
+                    print("1")
+                    if len(goals) == 1:
                         upper_bound = cost + directory_b[state][2]
-                        plan = path
+                        plan = path + list(reversed(directory_b[state][3]))
+                    else:
+                        pass
 
+                if lower_bound >= upper_bound or problem.isGoalState(state):
+                    plan = path
+                    plan = [action[1] for action in plan]
+                    return plan
 
-
-            if lower_bound >= upper_bound:
-                plan = [action[1] for action in plan]
-                return plan
-
-            successors = problem.getSuccessors(state)
-            for succ in successors:
-                succState, succAction, succCost = succ
-                if succState not in closed_f:
-                    new_node = (succState, succAction, cost + succCost, path + [(state, succAction)])
-                    fn_f = heuristic(succState, problem)+cost+succCost
-                    dn_f = cost + succCost - backwardsHeuristic(succState, problem)
-                    bn_f = fn_f + dn_f
-                    Open_f.push(new_node, bn_f)
-                    directory_f[succState] = new_node
+                best_g[state] = cost
+                for succ in problem.getSuccessors(state):
+                    succState, succAction, succCost = succ
+                    # if succState not in closed_forward:
+                    if not succState in closed_forward:
+                        new_node = (succState, succAction, cost + succCost, path + [(state, succAction)])
+                        fn_f = heuristic(succState, problem) + cost + succCost
+                        dn_f = cost + succCost - backwardsHeuristic(succState, problem)
+                        bn_f = fn_f + dn_f
+                        Open_f.push(new_node, bn_f)
+                        directory_f[succState] = new_node
 
         else:
-            n = Open_b.pop()
-            state, action, cost, path = n
-            closed_b.add(state)
+            pass
+            node = Open_b.pop()
+            state, action, cost, path = node
+            if (not state in closed_backward) or cost < best_g.get(state):
+                closed_backward.add(state)
 
-            if state in directory_f and directory_f[state][2] + cost < upper_bound:
-
-                if len(goals) == 1:
-                    upper_bound = directory_f[state][2] + cost
-                    plan = directory_f[state][3] + list(reversed(path))
-                else:
-                    if problem.isGoalState(state):
+                if state in directory_f and directory_f[state][2] + cost < upper_bound:
+                    print("1")
+                    if len(goals) == 1:
                         upper_bound = directory_f[state][2] + cost
-                        plan = directory_f[state][3]
+                        plan = directory_f[state][3] + list(reversed(path))
+                    else:
+                        pass
 
-            if lower_bound >= upper_bound:
-                plan = [action[1] for action in plan]
+                if lower_bound >= upper_bound or problem.isGoalState(state):
+                    plan = path
+                    plan = [action[1] for action in plan]
+                    return plan
 
-                return plan
-
-            successors = problem.getBackwardsSuccessors(state)
-            for succ in successors:
-                succState, succAction, succCost = succ
-                if succState not in closed_b:
-                    new_node = (succState, succAction, cost + succCost, path + [(state, succAction)])
-                    fn_b = backwardsHeuristic(succState, problem) + cost + succCost
-                    dn_b = cost + succCost - heuristic(succState, problem)
-                    bn_b = fn_b + dn_b
-                    Open_b.push(new_node, bn_b)
-                    directory_b[succState] = new_node
+                best_g[state] = cost
+                for succ in problem.getBackwardsSuccessors(state):
+                    succState, succAction, succCost = succ
+                    # if succState not in closed_backward:
+                    if not succState in closed_backward:
+                        new_node = (succState, succAction, cost + succCost, path + [(state, succAction)])
+                        fn_b = backwardsHeuristic(succState, problem) + cost + succCost
+                        dn_b = cost + succCost - heuristic(succState, problem)
+                        bn_b = fn_b + dn_b
+                        Open_b.push(new_node, bn_b)
+                        directory_b[succState] = new_node
         x = not x
 
     print(plan)
@@ -332,9 +335,5 @@ dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
 
-
 ehc = enforcedHillClimbing
 bae = bidirectionalAStarEnhanced
-
-
-
