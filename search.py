@@ -230,7 +230,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     start_node = (start_state, '', 0, [])
     dn_f = start_node[2] - backwardsHeuristic(start_state, problem)  # for initial node: 0 - 0
     Open_f.push(start_node, heuristic(start_state, problem) + start_node[2] + dn_f)
-    directory_f[start_state] = start_node  # {state :(state, action, cost, path)...}
+    directory_f[start_state] = start_node  # {state :((state,nextFood), action, cost, path)...}
 
     # backward direction
     # Priority = h-value from node to initial state(consider it as goal state in opposite direction) +
@@ -272,7 +272,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         upper_bound = cost + directory_b[state][2]
                         plan = path + list(reversed(directory_b[state][3]))
                 else:
-                    if problem.isGoalState(state):
+                    if problem.isGoalState(state) and (state in directory_b):
                         plan = [action[1] for action in path]
                         return plan
 
@@ -304,8 +304,9 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         upper_bound = directory_f[state][2] + cost
                         plan = directory_f[state][3] + list(reversed(path))
                 else:
-                    if problem.isGoalState(state):
-                        plan = [action[1] for action in path]
+                    if problem.isGoalState(state) and (state in directory_f):
+                        plan = directory_f[state][3]
+                        plan = [action[1] for action in plan]
                         return plan
 
                 if lower_bound >= upper_bound:
