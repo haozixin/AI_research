@@ -244,6 +244,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
         Open_b.push(goal_node, backwardsHeuristic(goal_state, problem) + cost_b + dn_b)
         directory_b[goal_state] = goal_node
 
+    # Two visited set for each direction
     closed_forward = set()
     closed_backward = set()
 
@@ -252,6 +253,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     x = True  # x <- f, when x = true. x <- b, when x = false.
     plan = []
 
+    # Use the best_g for task3
     best_g = dict()
     while not Open_f.isEmpty() and not Open_b.isEmpty():
         b_Min_f = Open_f.getMinimumPriority()
@@ -262,18 +264,19 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
             node = Open_f.pop()
             state, action, cost, path = node
             if not state in closed_forward or cost < best_g.get(state):
+                # before add the state to closed_forward, check if the state is in the closed_backward
                 closed_forward.add(state)
 
-                if state in directory_b and cost + directory_b[state][2] < upper_bound:
-                    print("1")
-                    if len(goals) == 1:
+                if len(goals) == 1:
+                    if state in directory_b and cost + directory_b[state][2] < upper_bound:
                         upper_bound = cost + directory_b[state][2]
                         plan = path + list(reversed(directory_b[state][3]))
-                    else:
-                        pass
+                else:
+                    if problem.isGoalState(state):
+                        plan = [action[1] for action in path]
+                        return plan
 
-                if lower_bound >= upper_bound or problem.isGoalState(state):
-                    plan = path
+                if lower_bound >= upper_bound:
                     plan = [action[1] for action in plan]
                     return plan
 
@@ -289,23 +292,23 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         Open_f.push(new_node, bn_f)
                         directory_f[succState] = new_node
 
+        # Same process with the opposite direction
         else:
-            pass
             node = Open_b.pop()
             state, action, cost, path = node
             if (not state in closed_backward) or cost < best_g.get(state):
                 closed_backward.add(state)
 
-                if state in directory_f and directory_f[state][2] + cost < upper_bound:
-                    print("1")
-                    if len(goals) == 1:
+                if len(goals) == 1:
+                    if state in directory_f and directory_f[state][2] + cost < upper_bound:
                         upper_bound = directory_f[state][2] + cost
                         plan = directory_f[state][3] + list(reversed(path))
-                    else:
-                        pass
+                else:
+                    if problem.isGoalState(state):
+                        plan = [action[1] for action in path]
+                        return plan
 
-                if lower_bound >= upper_bound or problem.isGoalState(state):
-                    plan = path
+                if lower_bound >= upper_bound:
                     plan = [action[1] for action in plan]
                     return plan
 
@@ -322,7 +325,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         directory_b[succState] = new_node
         x = not x
 
-    print(plan)
     return plan
 
     # put the below line at the end of your code or remove it
