@@ -589,7 +589,7 @@ class BidirectionalSearchAgent(Agent):
                 revheur = getattr(search, backwardsHeuristic)
             else:
                 raise AttributeError(backwardsHeuristic + ' is not a function in searchAgents.py or search.py.')
-            
+
             print('[BidirectionalSearchAgent] using function %s, heuristic %s and backwardsHeuristic %s' % (fn, heuristic, backwardsHeuristic))
             # Note: this bit of Python trickery combines the search algorithm and the heuristic
             self.searchFunction = lambda x: func(x, heuristic=heur, backwardsHeuristic=revheur)
@@ -669,7 +669,7 @@ class BidirectionalPositionSearchProblem(search.SearchProblem):
 
     def getGoalStates(self):
         return [self.goal]
-    
+
     def isGoalState(self, state):
         isGoal = state == self.goal
 
@@ -812,7 +812,7 @@ class BidirectionalFoodSearchProblem:
         """YOUR CODE HERE FOR TASK 3:"""
         # You MUST implement this function to return the initial state
         return self.start
-    
+
     def getGoalStates(self):
         goal_states = []
         # temp = []
@@ -856,7 +856,7 @@ class BidirectionalFoodSearchProblem:
         # DO reverse your action before you return it
         successors = []
         self._expanded += 1  # DO NOT CHANGE
-        
+
         """YOUR CODE HERE FOR TASK 3:"""
 
         # There are four actions might be available:
@@ -874,7 +874,7 @@ class BidirectionalFoodSearchProblem:
         return successors
 
 
-    
+
     def getCostOfActions(self, actions):
         """Returns the cost of a particular sequence of actions.  If those actions
         include an illegal move, return 999999"""
@@ -900,10 +900,32 @@ class BidirectionalFoodSearchProblem:
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
-
+    # # Minimum spanning tree + the distance to the closet goal state
     return 0
 
 
+# def prim(graph):
+#     n = len(graph)
+#     costs = [99999 for _ in range(n)]
+#     costs[0] = 0
+#     parents = [-1 for _ in range(n)]
+#     visited = [False for _ in range(n)]
+#     t = []
+#     while len(t) < n:
+#         minCost = 99999
+#         minNode = None
+#         for i in range(n):
+#             if not visited[i] and costs[i] < minCost:
+#                 minCost = costs[i]
+#                 minNode = i
+#         t.append(minNode)
+#         visited[minNode] = True
+#
+#         for edge in graph[minNode]:
+#             if not visited[edge[0]] and edge[1] < costs[edge[0]]:
+#                 costs[edge[0]] = edge[1]
+#                 parents[edge[0]] = minNode
+#     return costs, parents
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     "*** YOUR CODE HERE FOR TASK 3 ***"
