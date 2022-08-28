@@ -1,0 +1,67 @@
+before grades
+Starting on 8-26 at 13:51:57
+after grades
+
+Question part1
+==============
+*** PASS: a1_marking/part1/ehc1.test
+*** 	pacman layout:		mediumMaze
+*** 	solution length: 76
+*** 	nodes expanded:		151
+*** PASS: a1_marking/part1/ehc2.test
+*** 	pacman layout:		smallEHC
+*** 	solution length: 18
+*** 	nodes expanded:		23
+
+### Question part1: 3.00/3 ###
+
+
+Question part2
+==============
+*** PASS: a1_marking/part2/ida1.test
+*** 	pacman layout:		smallMaze
+*** 	solution length: 19
+*** 	nodes expanded:		38
+*** PASS: a1_marking/part2/ida2.test
+*** 	pacman layout:		mediumMaze2
+*** 	solution length: 68
+*** 	nodes expanded:		183
+
+### Question part2: 3.00/3 ###
+
+
+Question part3
+==============
+*** PASS: a1_marking/part3/capsuleA1.test
+*** 	pacman layout:		standardSmallCorners
+*** 	solution length: 81
+*** 	nodes expanded:		2523
+*** PASS: a1_marking/part3/capsuleA2.test
+*** 	pacman layout:		openSmallCorners
+*** 	solution length: 78
+*** 	nodes expanded:		2854
+*** PASS: a1_marking/part3/capsuleA3.test
+*** 	pacman layout:		multipleSmallCorners
+*** 	solution length: 81
+*** 	nodes expanded:		25184
+*** PASS: a1_marking/part3/capsuleA4.test
+*** 	pacman layout:		comebackSmallCorners
+*** 	solution length: 81
+*** 	nodes expanded:		10067
+
+### Question part3: 4.00/4 ###
+
+
+Finished at 13:52:05
+
+Provisional grades
+==================
+Question part1: 3.00/3
+Question part2: 3.00/3
+Question part3: 4.00/4
+------------------
+Total: 10.00/10
+
+Your grades are NOT yet registered.  To register your grades, make sure
+to follow your instructor's guidelines to receive credit on your project.
+
